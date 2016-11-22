@@ -16,6 +16,46 @@ int S_MIN = 0;
 int S_MAX = 256;
 int V_MIN = 0;
 int V_MAX = 256;
+
+//bun
+int BLUE_H_MIN = 78;
+int BLUE_H_MAX = 128;
+int BLUE_S_MIN = 11;
+int BLUE_S_MAX = 149;
+int BLUE_V_MIN = 197;
+int BLUE_V_MAX = 256;
+
+//bun
+/*int RED_H_MIN = 0;
+int RED_H_MAX = 204;
+int RED_S_MIN = 76;
+int RED_S_MAX = 158;
+int RED_V_MIN = 0;
+int RED_V_MAX = 256;
+*/
+int RED_H_MIN = 69;
+int RED_H_MAX = 94;
+int RED_S_MIN = 15;
+int RED_S_MAX = 68;
+int RED_V_MIN = 189;
+int RED_V_MAX = 256;
+
+int YELLOW_H_MIN = 78;
+int YELLOW_H_MAX = 128;
+int YELLOW_S_MIN = 11;
+int YELLOW_S_MAX = 149;
+int YELLOW_V_MIN = 197;
+int YELLOW_V_MAX = 256;
+
+//bun
+int GREEN_H_MIN = 62;
+int GREEN_H_MAX = 84;
+int GREEN_S_MIN = 88;
+int GREEN_S_MAX = 242;
+int GREEN_V_MIN = 210;
+int GREEN_V_MAX = 256;
+
+
 //default capture width and height
 const int FRAME_WIDTH = 640;
 const int FRAME_HEIGHT = 480;
@@ -156,6 +196,7 @@ void trackFilteredObject(int &x, int &y, Mat threshold, Mat &cameraFeed) {
 					y = moment.m01 / area;
 					objectFound = true;
 					refArea = area;
+                    drawObject(x,y,cameraFeed);
 				}
 				else objectFound = false;
 
@@ -163,10 +204,10 @@ void trackFilteredObject(int &x, int &y, Mat threshold, Mat &cameraFeed) {
 			}
 			//let user know you found an object
 			if (objectFound == true) {
-				putText(cameraFeed, "Tracking Object", Point(0, 50), 2, 1, Scalar(0, 255, 0), 2);
+				//putText(cameraFeed, "Tracking Object", Point(0, 50), 2, 1, Scalar(0, 255, 0), 2);
 				//draw object location on screen
 				//cout << x << "," << y;
-				drawObject(x, y, cameraFeed);
+                //drawObject(x, y, cameraFeed);
 
 			}
 
@@ -188,16 +229,18 @@ int main(int argc, char* argv[])
 	Mat cameraFeed;
 	//matrix storage for HSV image
 	Mat HSV;
-	//matrix storage for binary threshold image
-	Mat threshold;
+	//matrix storage for binary thresholdBlue image
+	Mat thresholdBlue;
+    Mat thresholdRed;
 	//x and y values for the location of the object
 	int x = 0, y = 0;
 	//create slider bars for HSV filtering
-	createTrackbars();
+	//createTrackbars();
 	//video capture object to acquire webcam feed
 	VideoCapture capture;
 	//open capture object at location zero (default location for webcam)
-	capture.open(0);
+    //capture.open(0);
+    capture.open("rtmp://172.16.254.63/live/live");
 	//set height and width of capture frame
 	capture.set(CV_CAP_PROP_FRAME_WIDTH, FRAME_WIDTH);
 	capture.set(CV_CAP_PROP_FRAME_HEIGHT, FRAME_HEIGHT);
@@ -215,22 +258,29 @@ int main(int argc, char* argv[])
 		//convert frame from BGR to HSV colorspace
 		cvtColor(cameraFeed, HSV, COLOR_BGR2HSV);
 		//filter HSV image between values and store filtered image to
-		//threshold matrix
-		inRange(HSV, Scalar(H_MIN, S_MIN, V_MIN), Scalar(H_MAX, S_MAX, V_MAX), threshold);
+		//thresholdBlue matrix
+		//inRange(HSV, Scalar(H_MIN, S_MIN, V_MIN), Scalar(H_MAX, S_MAX, V_MAX), thresholdRed);
+        inRange(HSV, Scalar(BLUE_H_MIN, BLUE_S_MIN, BLUE_V_MIN), Scalar(BLUE_H_MAX, BLUE_S_MAX, BLUE_V_MAX), thresholdBlue);
+        inRange(HSV, Scalar(RED_H_MIN, RED_S_MIN, RED_V_MIN), Scalar(RED_H_MAX, RED_S_MAX, RED_V_MAX), thresholdRed);
 		//perform morphological operations on thresholded image to eliminate noise
 		//and emphasize the filtered object(s)
-		if (useMorphOps)
-			morphOps(threshold);
+		if (useMorphOps) {
+            morphOps(thresholdBlue);
+            morphOps(thresholdRed);
+        }
 		//pass in thresholded frame to our object tracking function
 		//this function will return the x and y coordinates of the
 		//filtered object
-		if (trackObjects)
-			trackFilteredObject(x, y, threshold, cameraFeed);
-
+		if (trackObjects) {
+            trackFilteredObject(x, y, thresholdBlue, cameraFeed);
+            trackFilteredObject(x, y, thresholdRed, cameraFeed);
+            //trackFilteredObject(x, y, thresholdBlue, cameraFeed);
+        }
 		//show frames
-		imshow(windowName2, threshold);
+		imshow("Blue threshold", thresholdBlue);
+        imshow("Red threshold", thresholdRed);
 		imshow(windowName, cameraFeed);
-		imshow(windowName1, HSV);
+		//imshow(windowName1, HSV);
 		setMouseCallback("Original Image", on_mouse, &p);
 		//delay 30ms so that screen can refresh.
 		//image will not appear without this waitKey() command

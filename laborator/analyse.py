@@ -1,4 +1,5 @@
 import sys
+import re
 
 argc = len(sys.argv)
 
@@ -6,10 +7,10 @@ if argc<3:
    print("Usage: "+sys.argv[0]+" file functionName")
    exit(1)
    
-arith = []
-movs = []
-jmps = []
-others = []
+arith = ['sub', 'add', 'addq', 'mul', 'div']
+movs = ['mov']
+jmps = ['jmp', 'jne', 'jge', 'call']
+others = ['xor','and','or']
 
 fileName = sys.argv[1] 
 funcName = sys.argv[2] + ":"
@@ -51,5 +52,23 @@ if endOfFunc < 0 :
     
 content = content[:endOfFunc]
 
+count = 0 
+for s in content:    
+    m = re.search('\.\w+', s)
+    if m is not None:
+        #print(m.group(0))
+        if s.startswith(('.', '\t.', ' .')) :
+            #print("Deleted!:" + content.pop(count))
+            content.pop(count)
+    #print(m.group(0))
+    #content.remove(m.group(0))
+    comIndex = s[1:].find("\t")
+    #print("comIndex " + str(comIndex))    
+    if comIndex > 0:
+        content[count] = (content[count])[:comIndex+1]    
+    count+=1
 
-print(content)
+for s in content:
+    if s in jmps:
+        print('arith:')
+    print(s)
