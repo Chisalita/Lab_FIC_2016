@@ -5,6 +5,8 @@
 #include "opencv2/highgui/highgui.hpp"
 //#include <opencv2\cv.h>
 #include "opencv2/opencv.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
+#include "opencv2/imgcodecs.hpp"
 
 using namespace std;
 using namespace cv;
@@ -40,12 +42,19 @@ int RED_S_MAX = 68;
 int RED_V_MIN = 189;
 int RED_V_MAX = 256;
 
-int YELLOW_H_MIN = 78;
-int YELLOW_H_MAX = 128;
-int YELLOW_S_MIN = 11;
-int YELLOW_S_MAX = 149;
-int YELLOW_V_MIN = 197;
+int YELLOW_H_MIN = 59;
+int YELLOW_H_MAX = 67;
+int YELLOW_S_MIN = 76;
+int YELLOW_S_MAX = 152;
+int YELLOW_V_MIN = 0;
 int YELLOW_V_MAX = 256;
+
+int BLACK_H_MIN = 0;
+int BLACK_H_MAX = 150;
+int BLACK_S_MIN = 0;
+int BLACK_S_MAX = 150;
+int BLACK_V_MIN = 0;
+int BLACK_V_MAX = 150;
 
 //bun
 int GREEN_H_MIN = 62;
@@ -54,6 +63,22 @@ int GREEN_S_MIN = 88;
 int GREEN_S_MAX = 242;
 int GREEN_V_MIN = 210;
 int GREEN_V_MAX = 256;
+
+//vechi
+/*int YELLOW_H_MIN = 78;
+int YELLOW_H_MAX = 128;
+int YELLOW_S_MIN = 11;
+int YELLOW_S_MAX = 149;
+int YELLOW_V_MIN = 197;
+int YELLOW_V_MAX = 256;
+*/
+
+
+
+/////////////
+RNG rng(12345);
+//////////////
+
 
 
 //default capture width and height
@@ -216,6 +241,39 @@ void trackFilteredObject(int &x, int &y, Mat threshold, Mat &cameraFeed) {
 		else putText(cameraFeed, "TOO MUCH NOISE! ADJUST FILTER", Point(0, 50), 1, 2, Scalar(0, 0, 255), 2);
 	}
 }
+
+void contouresStuff(InputOutputArray image){
+    vector<vector<Point> > contours;
+    vector<Vec4i> hierarchy;
+
+    /*Mat image2;
+    image2 = imread("/home/kissy/openCV_workspace/lena.jpg", 1 );
+    */
+
+    findContours(image, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0, 0) );
+
+    Mat drawing = Mat::zeros( image.size(), CV_8UC3 );
+   // cout<<contours.size()<<endl;
+
+    for( size_t i = 0; i< contours.size(); i++ )
+    {
+        Scalar color = Scalar( rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255) );
+        drawContours( drawing, contours, (int)i, color, 2, 8, hierarchy, 0, Point() );
+    }
+
+    for(size_t i=0; i<hierarchy.size(); i++){
+        cout<<hierarchy[i][0];
+        cout<<",";
+        cout<<hierarchy[i][1];
+        cout<<endl;
+    }
+
+    cout<<"----------------------------------------"<<endl;
+    namedWindow( "Components", 1 );
+    imshow( "Components", drawing );
+
+}
+
 int main(int argc, char* argv[])
 {
 
@@ -239,7 +297,7 @@ int main(int argc, char* argv[])
 	//video capture object to acquire webcam feed
 	VideoCapture capture;
 	//open capture object at location zero (default location for webcam)
-    //capture.open(0);
+////    capture.open(0);
     capture.open("rtmp://172.16.254.63/live/live");
 	//set height and width of capture frame
 	capture.set(CV_CAP_PROP_FRAME_WIDTH, FRAME_WIDTH);
@@ -260,7 +318,9 @@ int main(int argc, char* argv[])
 		//filter HSV image between values and store filtered image to
 		//thresholdBlue matrix
 		//inRange(HSV, Scalar(H_MIN, S_MIN, V_MIN), Scalar(H_MAX, S_MAX, V_MAX), thresholdRed);
-        inRange(HSV, Scalar(BLUE_H_MIN, BLUE_S_MIN, BLUE_V_MIN), Scalar(BLUE_H_MAX, BLUE_S_MAX, BLUE_V_MAX), thresholdBlue);
+        //inRange(HSV, Scalar(BLUE_H_MIN, BLUE_S_MIN, BLUE_V_MIN), Scalar(BLUE_H_MAX, BLUE_S_MAX, BLUE_V_MAX), thresholdBlue);
+        inRange(HSV, Scalar(BLACK_H_MIN, BLACK_S_MIN, BLACK_V_MIN), Scalar(BLACK_H_MAX, BLACK_S_MAX, BLACK_V_MAX), thresholdBlue);
+
         inRange(HSV, Scalar(RED_H_MIN, RED_S_MIN, RED_V_MIN), Scalar(RED_H_MAX, RED_S_MAX, RED_V_MAX), thresholdRed);
 		//perform morphological operations on thresholded image to eliminate noise
 		//and emphasize the filtered object(s)
@@ -268,6 +328,9 @@ int main(int argc, char* argv[])
             morphOps(thresholdBlue);
             morphOps(thresholdRed);
         }
+
+        contouresStuff(thresholdBlue);
+
 		//pass in thresholded frame to our object tracking function
 		//this function will return the x and y coordinates of the
 		//filtered object

@@ -9,7 +9,7 @@ if argc<3:
    
 arith = ['sub', 'add', 'addq', 'mul', 'div']
 movs = ['mov']
-jmps = ['jmp', 'jne', 'jge', 'call']
+jmps = ['jmp', 'jne', 'jge', 'call', 'je']
 others = ['xor','and','or']
 
 fileName = sys.argv[1] 

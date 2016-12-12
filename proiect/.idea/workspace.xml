@@ -12,8 +12,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2fd3cb33-c599-407d-8abb-f43c9b74058d" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/vcs.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../laborator/analyse.py" afterPath="$PROJECT_DIR$/../laborator/analyse.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/video.cpp" afterPath="$PROJECT_DIR$/video.cpp" />
     </list>
     <ignored path="proiect.iws" />
@@ -37,10 +36,11 @@
       <file leaf-file-name="video.cpp" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/video.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="72">
-              <caret line="261" column="10" selection-start-line="261" selection-start-column="10" selection-end-line="261" selection-end-column="10" />
+            <state relative-caret-position="270">
+              <caret line="270" column="51" selection-start-line="270" selection-start-column="51" selection-end-line="270" selection-end-column="51" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
+                <element signature="e#153#182#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -305,11 +305,12 @@
       <workItem from="1478787485798" duration="410000" />
       <workItem from="1478788031231" duration="4077000" />
       <workItem from="1479147436256" duration="505000" />
+      <workItem from="1481206549241" duration="5108000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="5065000" />
+    <option name="totallyTimeSpent" value="10173000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -322,7 +323,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-1" y="26" width="1368" height="742" extended-state="6" />
-    <editor active="true" />
+    <editor active="false" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24944155" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32903227" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -370,6 +371,7 @@
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
+            <element signature="e#153#182#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -380,16 +382,29 @@
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
+            <element signature="e#153#182#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/video.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="72">
-          <caret line="261" column="10" selection-start-line="261" selection-start-column="10" selection-end-line="261" selection-end-column="10" />
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
+            <element signature="e#153#182#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/video.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="270">
+          <caret line="270" column="51" selection-start-line="270" selection-start-column="51" selection-end-line="270" selection-end-column="51" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+            <element signature="e#153#182#0" expanded="true" />
           </folding>
         </state>
       </provider>
