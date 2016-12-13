@@ -8,6 +8,10 @@
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/imgcodecs.hpp"
 
+
+#include "Car.h"
+
+
 using namespace std;
 using namespace cv;
 //initial min and max HSV filter values.
@@ -255,11 +259,11 @@ void contouresStuff(InputOutputArray image){
     Mat drawing = Mat::zeros( image.size(), CV_8UC3 );
    // cout<<contours.size()<<endl;
 
-    for( size_t i = 0; i< contours.size(); i++ )
-    {
+   // for( size_t i = 0; i< contours.size(); i++ )
+    //{
         Scalar color = Scalar( rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255) );
-        drawContours( drawing, contours, (int)i, color, 2, 8, hierarchy, 0, Point() );
-    }
+        drawContours( drawing, contours, /*(int)i*/ 2, color, 2, 8, hierarchy, 0, Point() );
+    //}
 
     for(size_t i=0; i<hierarchy.size(); i++){
         cout<<hierarchy[i][0];
@@ -273,6 +277,63 @@ void contouresStuff(InputOutputArray image){
     imshow( "Components", drawing );
 
 }
+
+//void createSocket() {
+//
+//    char message[100];
+//    char server_reply[200];
+//
+//    struct sockaddr_in server , client;
+//    int socket_desc;
+//    //Create socket
+//    socket_desc = socket(AF_INET , SOCK_STREAM , 0);
+//    if (socket_desc == -1)
+//    {
+//        printf("Could not create socket");
+//    }
+//    puts("Socket created");
+//
+//
+//
+//    server.sin_addr.s_addr = inet_addr(CAR_IP);
+//    server.sin_family = AF_INET;
+//    server.sin_port = htons( CAR_PORT );
+//
+//    //Connect to remote server
+//    if (connectToCar(socket_desc , (struct sockaddr *)&server , sizeof(server)) < 0)
+//    {
+//        perror("connectToCar failed. Error");
+//        return;
+//    }
+//
+//    puts("Connected\n");
+//    while(1)
+//    {
+//        printf("Enter message : ");
+//        scanf("%s" , message);
+//
+//        //Send some data
+//        if( send(socket_desc , message , strlen(message) , 0) < 0)
+//        {
+//            puts("Send failed");
+//            return;
+//        }
+//
+//        //Receive a reply from the server
+//        if( recv(socket_desc , server_reply , 2000 , 0) < 0)
+//        {
+//            puts("recv failed");
+//            break;
+//        }
+//
+//        puts("Server reply :");
+//        puts(server_reply);
+//    }
+//
+//    close(socket_desc);
+//
+//
+//}
 
 int main(int argc, char* argv[])
 {
@@ -297,7 +358,8 @@ int main(int argc, char* argv[])
 	//video capture object to acquire webcam feed
 	VideoCapture capture;
 	//open capture object at location zero (default location for webcam)
-////    capture.open(0);
+    //////capture.open(0);
+
     capture.open("rtmp://172.16.254.63/live/live");
 	//set height and width of capture frame
 	capture.set(CV_CAP_PROP_FRAME_WIDTH, FRAME_WIDTH);
@@ -305,8 +367,17 @@ int main(int argc, char* argv[])
 	//start an infinite loop where webcam feed is copied to cameraFeed matrix
 	//all of our operations will be performed within this loop
 
+/*
+    Car c;
+    c.connectToCar();
 
-
+    char message[100];
+    while(1){
+        printf("Enter message : ");
+        scanf("%s" , message);
+        c.sendCommand(message);
+    }
+*/
 	
 	while (1) {
 
