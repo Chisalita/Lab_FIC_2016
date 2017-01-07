@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
-project( Lab_FIC_2016 )
+project(proiect)
 find_package( OpenCV REQUIRED )
-add_executable( video video.cpp Car.cpp Car.h)
-target_link_libraries( video ${OpenCV_LIBS} )
+add_executable( proiect video.cpp Car.cpp Car.h )
+target_link_libraries( proiect ${OpenCV_LIBS} )

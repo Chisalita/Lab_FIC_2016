@@ -357,10 +357,22 @@ int main(int argc, char* argv[])
 	//createTrackbars();
 	//video capture object to acquire webcam feed
 	VideoCapture capture;
-	//open capture object at location zero (default location for webcam)
-    //////capture.open(0);
 
-    capture.open("rtmp://172.16.254.63/live/live");
+
+    //open the capture
+    if(argc < 2){
+        //open capture object at location zero (default location for webcam)
+        capture.open(0);
+    }else{
+        if(strstr(argv[1], "rtmp://") == NULL){
+            //it is not the link to the live stream, so hard code it
+            capture.open("rtmp://172.16.254.63/live/live");
+        }else{
+            capture.open(argv[1]);
+        }
+
+    }
+
 	//set height and width of capture frame
 	capture.set(CV_CAP_PROP_FRAME_WIDTH, FRAME_WIDTH);
 	capture.set(CV_CAP_PROP_FRAME_HEIGHT, FRAME_HEIGHT);
