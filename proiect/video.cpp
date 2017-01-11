@@ -17,11 +17,11 @@ using namespace cv;
 //initial min and max HSV filter values.
 //these will be changed using trackbars
 int H_MIN = 0;
-int H_MAX = 256;
-int S_MIN = 0;
-int S_MAX = 256;
-int V_MIN = 0;
-int V_MAX = 256;
+int H_MAX = 77;
+int S_MIN = 0;//80;
+int S_MAX = 6;//146;
+int V_MIN = 123;
+int V_MAX = 255;
 
 //bun
 int BLUE_H_MIN = 78;
@@ -60,6 +60,7 @@ int BLACK_S_MAX = 150;
 int BLACK_V_MIN = 0;
 int BLACK_V_MAX = 150;
 
+/*
 //bun
 int GREEN_H_MIN = 62;
 int GREEN_H_MAX = 84;
@@ -67,6 +68,16 @@ int GREEN_S_MIN = 88;
 int GREEN_S_MAX = 242;
 int GREEN_V_MIN = 210;
 int GREEN_V_MAX = 256;
+*/
+
+//net
+int GREEN_H_MIN = 89;
+int GREEN_H_MAX = 150;
+int GREEN_S_MIN = 32;
+int GREEN_S_MAX = 255;
+int GREEN_V_MIN = 40;
+int GREEN_V_MAX = 256;
+
 
 //vechi
 /*int YELLOW_H_MIN = 78;
@@ -99,7 +110,14 @@ const std::string windowName1 = "HSV Image";
 const std::string windowName2 = "Thresholded Image";
 const std::string windowName3 = "After Morphological Operations";
 const std::string trackbarWindowName = "Trackbars";
+const Scalar carMinHSV(GREEN_H_MIN, GREEN_S_MIN, GREEN_V_MIN);
+const Scalar carMaxHSV(GREEN_H_MAX, GREEN_S_MAX, GREEN_V_MAX);
 
+
+
+cv::Vec3i Arena;
+
+cv::Vec3i getCarPos(cv::Mat img);
 
 void on_mouse(int e, int x, int y, int d, void *ptr)
 {
@@ -140,12 +158,12 @@ void createTrackbars() {
 	//the max value the trackbar can move (eg. H_HIGH),
 	//and the function that is called whenever the trackbar is moved(eg. on_trackbar)
 	//                                  ---->    ---->     ---->
-	createTrackbar("H_MIN", trackbarWindowName, &H_MIN, H_MAX, on_trackbar);
-	createTrackbar("H_MAX", trackbarWindowName, &H_MAX, H_MAX, on_trackbar);
-	createTrackbar("S_MIN", trackbarWindowName, &S_MIN, S_MAX, on_trackbar);
-	createTrackbar("S_MAX", trackbarWindowName, &S_MAX, S_MAX, on_trackbar);
-	createTrackbar("V_MIN", trackbarWindowName, &V_MIN, V_MAX, on_trackbar);
-	createTrackbar("V_MAX", trackbarWindowName, &V_MAX, V_MAX, on_trackbar);
+	createTrackbar("H_MIN", trackbarWindowName, &H_MIN, 180, on_trackbar);
+	createTrackbar("H_MAX", trackbarWindowName, &H_MAX, 180, on_trackbar);
+	createTrackbar("S_MIN", trackbarWindowName, &S_MIN, 255, on_trackbar);
+	createTrackbar("S_MAX", trackbarWindowName, &S_MAX, 255, on_trackbar);
+	createTrackbar("V_MIN", trackbarWindowName, &V_MIN, 255, on_trackbar);
+	createTrackbar("V_MAX", trackbarWindowName, &V_MAX, 255, on_trackbar);
 
 
 }
@@ -246,6 +264,68 @@ void trackFilteredObject(int &x, int &y, Mat threshold, Mat &cameraFeed) {
 	}
 }
 
+
+cv::Vec3i getCarPos(cv::Mat img){
+    Mat thresholdCar;
+    //inRange(img, carMinHSV, carMaxHSV, img);
+    //inRange(img, Scalar(H_MIN, S_MIN, V_MIN), Scalar(H_MAX, S_MAX, V_MAX), img);
+
+    cvtColor(img, img, COLOR_BGR2GRAY);
+    medianBlur(img, img, 5);
+    vector<Vec3f> circles;
+    vector<Vec3f> circlesCars;
+
+    HoughCircles(img, circles, HOUGH_GRADIENT, 1,
+                 img.rows/16, // change this value to detect circles with different distances to each other
+                 100, 30, 250, 270 // change the last two parameters
+            // (min_radius & max_radius) to detect larger circles
+    );
+
+    HoughCircles(img, circlesCars, HOUGH_GRADIENT, 1,
+                 img.rows/16, // change this value to detect circles with different distances to each other
+                 100, 30, 30, 60 // change the last two parameters
+            // (min_radius & max_radius) to detect larger circles
+    );
+
+    int maxRadius = 0;
+    for( size_t i = 0; i < circles.size(); i++ )
+    {
+
+        Vec3i c = circles[i];
+        if(c[2] > maxRadius){
+            maxRadius = c[2];
+            Arena = c;
+            cout<<Arena<<endl;
+
+        }
+
+
+       /* circle( img, Point(carC[0], carC[1]), carC[2], Scalar(255,255,255), 3, LINE_AA);
+        circle( img, Point(carC[0], carC[1]), 2, Scalar(255,255,255), 3, LINE_AA);
+        */
+        /*
+        circle( img, Point(c[0], c[1]), c[2], Scalar(0,0,255), 3, LINE_AA);
+        circle( img, Point(c[0], c[1]), 2, Scalar(0,255,0), 3, LINE_AA);
+    */
+    }
+
+    for (int j = 0; j < circlesCars.size(); ++j) {
+        Vec3i carC = circlesCars[j];
+        circle( img, Point(carC[0], carC[1]), carC[2], Scalar(255,255,255), 3, LINE_AA);
+        circle( img, Point(carC[0], carC[1]), 2, Scalar(255,255,255), 3, LINE_AA);
+    }
+
+
+
+
+    //circle( img, Point(Arena[0], Arena[1]), Arena[2], Scalar(0,0,255), 3, LINE_AA);
+    //circle( img, Point(Arena[0], Arena[1]), 2, Scalar(255,0,0), 3, LINE_AA);
+    imshow(windowName, img);
+
+    return Vec3i(0,0,0);
+}
+
+
 void contouresStuff(InputOutputArray image){
     vector<vector<Point> > contours;
     vector<Vec4i> hierarchy;
@@ -278,106 +358,63 @@ void contouresStuff(InputOutputArray image){
 
 }
 
-//void createSocket() {
-//
-//    char message[100];
-//    char server_reply[200];
-//
-//    struct sockaddr_in server , client;
-//    int socket_desc;
-//    //Create socket
-//    socket_desc = socket(AF_INET , SOCK_STREAM , 0);
-//    if (socket_desc == -1)
-//    {
-//        printf("Could not create socket");
-//    }
-//    puts("Socket created");
-//
-//
-//
-//    server.sin_addr.s_addr = inet_addr(CAR_IP);
-//    server.sin_family = AF_INET;
-//    server.sin_port = htons( CAR_PORT );
-//
-//    //Connect to remote server
-//    if (connectToCar(socket_desc , (struct sockaddr *)&server , sizeof(server)) < 0)
-//    {
-//        perror("connectToCar failed. Error");
-//        return;
-//    }
-//
-//    puts("Connected\n");
-//    while(1)
-//    {
-//        printf("Enter message : ");
-//        scanf("%s" , message);
-//
-//        //Send some data
-//        if( send(socket_desc , message , strlen(message) , 0) < 0)
-//        {
-//            puts("Send failed");
-//            return;
-//        }
-//
-//        //Receive a reply from the server
-//        if( recv(socket_desc , server_reply , 2000 , 0) < 0)
-//        {
-//            puts("recv failed");
-//            break;
-//        }
-//
-//        puts("Server reply :");
-//        puts(server_reply);
-//    }
-//
-//    close(socket_desc);
-//
-//
-//}
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
 
-	//some boolean variables for different functionality within this
-	//program
-	bool trackObjects = true;
-	bool useMorphOps = true;
+    //some boolean variables for different functionality within this
+    //program
+    bool trackObjects = true;
+    bool useMorphOps = true;
 
-	Point p;
-	//Matrix to store each frame of the webcam feed
-	Mat cameraFeed;
-	//matrix storage for HSV image
-	Mat HSV;
-	//matrix storage for binary thresholdBlue image
-	Mat thresholdBlue;
+    Point p;
+    //Matrix to store each frame of the webcam feed
+    Mat cameraFeed;
+    //matrix storage for HSV image
+    Mat HSV;
+    //matrix storage for binary thresholdBlue image
+    Mat thresholdBlue;
     Mat thresholdRed;
-	//x and y values for the location of the object
-	int x = 0, y = 0;
-	//create slider bars for HSV filtering
-	//createTrackbars();
-	//video capture object to acquire webcam feed
-	VideoCapture capture;
+    //x and y values for the location of the object
+    int x = 0, y = 0;
+    //create slider bars for HSV filtering
+    createTrackbars();
+    //video capture object to acquire webcam feed
+    VideoCapture capture;
 
 
     //open the capture
-    if(argc < 2){
+    if (argc < 2) {
         //open capture object at location zero (default location for webcam)
         capture.open(0);
-    }else{
-        if(strstr(argv[1], "rtmp://") == NULL){
+    } else {
+        if (strstr(argv[1], "://") == NULL) {
             //it is not the link to the live stream, so hard code it
             capture.open("rtmp://172.16.254.63/live/live");
-        }else{
+        } else {
             capture.open(argv[1]);
         }
 
     }
 
-	//set height and width of capture frame
-	capture.set(CV_CAP_PROP_FRAME_WIDTH, FRAME_WIDTH);
-	capture.set(CV_CAP_PROP_FRAME_HEIGHT, FRAME_HEIGHT);
-	//start an infinite loop where webcam feed is copied to cameraFeed matrix
-	//all of our operations will be performed within this loop
+    //set height and width of capture frame
+    capture.set(CV_CAP_PROP_FRAME_WIDTH, FRAME_WIDTH);
+    capture.set(CV_CAP_PROP_FRAME_HEIGHT, FRAME_HEIGHT);
+    //start an infinite loop where webcam feed is copied to cameraFeed matrix
+    //all of our operations will be performed within this loop
+
+    while(1){
+    capture.read(cameraFeed);
+        if(cameraFeed.empty()){
+            continue;
+        }
+        //cameraFeed = imread("/home/stefan/Pictures/lena.jpg", CV_LOAD_IMAGE_COLOR);
+        circle( cameraFeed, Point(Arena[0], Arena[1]), Arena[2], Scalar(0,0,255), 3, LINE_AA);
+        circle( cameraFeed, Point(Arena[0], Arena[1]), 2, Scalar(255,0,0), 3, LINE_AA);
+        imshow("true", cameraFeed);
+    getCarPos(cameraFeed);
+
+    waitKey(30);
+    }
 
 /*
     Car c;

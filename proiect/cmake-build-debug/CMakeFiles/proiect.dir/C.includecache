@@ -1,0 +1,12 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/stefan/FIC/Lab_FIC_2016/proiect/cmake-build-debug/CMakeFiles/3.6.2/CompilerIdC/CMakeCCompilerId.c
+
+/home/stefan/FIC/Lab_FIC_2016/proiect/cmake-build-debug/CMakeFiles/feature_tests.c
+
