@@ -17,11 +17,27 @@ using namespace cv;
 //initial min and max HSV filter values.
 //these will be changed using trackbars
 int H_MIN = 0;
-int H_MAX = 77;
+int H_MAX = 134;
 int S_MIN = 0;//80;
-int S_MAX = 6;//146;
-int V_MIN = 123;
+int S_MAX = 44;//146;
+int V_MIN = 168;
 int V_MAX = 255;
+
+int RED_B_MIN = 0;
+int RED_B_MAX = 134;
+int RED_G_MIN = 0;//80;
+int RED_G_MAX = 44;//146;
+int RED_R_MIN = 168;
+int RED_R_MAX = 255;
+
+
+int GREEN_B_MIN = 0;
+int GREEN_B_MAX = 83;
+int GREEN_G_MIN = 59;//80;
+int GREEN_G_MAX = 177;//146;
+int GREEN_R_MIN = 0;
+int GREEN_R_MAX = 17;
+
 
 //bun
 int BLUE_H_MIN = 78;
@@ -110,14 +126,18 @@ const std::string windowName1 = "HSV Image";
 const std::string windowName2 = "Thresholded Image";
 const std::string windowName3 = "After Morphological Operations";
 const std::string trackbarWindowName = "Trackbars";
-const Scalar carMinHSV(GREEN_H_MIN, GREEN_S_MIN, GREEN_V_MIN);
-const Scalar carMaxHSV(GREEN_H_MAX, GREEN_S_MAX, GREEN_V_MAX);
+const Scalar myCarMinBGR(RED_B_MIN, RED_G_MIN, RED_R_MIN);
+const Scalar myCarMaxBGR(RED_B_MAX, RED_G_MAX, RED_R_MAX);
+const Scalar oponentCarMinBGR(GREEN_B_MIN, GREEN_G_MIN, GREEN_R_MIN);
+const Scalar oponentCarMaxBGR(GREEN_B_MAX, GREEN_G_MAX, GREEN_R_MAX);
 
 
 
 cv::Vec3i Arena;
+cv::Vec3i myCar;
+cv::Vec3i oponentCar;
 
-cv::Vec3i getCarPos(cv::Mat img);
+void getCarPos(cv::Mat img);
 
 void on_mouse(int e, int x, int y, int d, void *ptr)
 {
@@ -158,8 +178,8 @@ void createTrackbars() {
 	//the max value the trackbar can move (eg. H_HIGH),
 	//and the function that is called whenever the trackbar is moved(eg. on_trackbar)
 	//                                  ---->    ---->     ---->
-	createTrackbar("H_MIN", trackbarWindowName, &H_MIN, 180, on_trackbar);
-	createTrackbar("H_MAX", trackbarWindowName, &H_MAX, 180, on_trackbar);
+	createTrackbar("H_MIN", trackbarWindowName, &H_MIN, 255, on_trackbar);
+	createTrackbar("H_MAX", trackbarWindowName, &H_MAX, 255, on_trackbar);
 	createTrackbar("S_MIN", trackbarWindowName, &S_MIN, 255, on_trackbar);
 	createTrackbar("S_MAX", trackbarWindowName, &S_MAX, 255, on_trackbar);
 	createTrackbar("V_MIN", trackbarWindowName, &V_MIN, 255, on_trackbar);
@@ -265,10 +285,14 @@ void trackFilteredObject(int &x, int &y, Mat threshold, Mat &cameraFeed) {
 }
 
 
-cv::Vec3i getCarPos(cv::Mat img){
+void getCarPos(cv::Mat img){
+    Mat originalImg = img;
     Mat thresholdCar;
     //inRange(img, carMinHSV, carMaxHSV, img);
-    //inRange(img, Scalar(H_MIN, S_MIN, V_MIN), Scalar(H_MAX, S_MAX, V_MAX), img);
+    //inRange(originalImg, Scalar(H_MIN, S_MIN, V_MIN), Scalar(H_MAX, S_MAX, V_MAX), thresholdCar);
+    //inRange(originalImg, myCarMinBGR, myCarMaxBGR, thresholdCar);
+    //inRange(originalImg, oponentCarMinBGR, oponentCarMaxBGR, thresholdCar);
+
 
     cvtColor(img, img, COLOR_BGR2GRAY);
     medianBlur(img, img, 5);
@@ -300,19 +324,42 @@ cv::Vec3i getCarPos(cv::Mat img){
         }
 
 
-       /* circle( img, Point(carC[0], carC[1]), carC[2], Scalar(255,255,255), 3, LINE_AA);
-        circle( img, Point(carC[0], carC[1]), 2, Scalar(255,255,255), 3, LINE_AA);
-        */
-        /*
-        circle( img, Point(c[0], c[1]), c[2], Scalar(0,0,255), 3, LINE_AA);
+
+       /* circle( img, Point(c[0], c[1]), c[2], Scalar(0,0,255), 3, LINE_AA);
         circle( img, Point(c[0], c[1]), 2, Scalar(0,255,0), 3, LINE_AA);
-    */
+        */
     }
 
+    //My car:
+    inRange(originalImg, oponentCarMinBGR, oponentCarMaxBGR, thresholdCar);
+    if(thresholdCar.empty()){
+        return ;
+    }
+    //imshow("RED", thresholdCar);
     for (int j = 0; j < circlesCars.size(); ++j) {
+
+        cout<<"circlesCars["<<j<<"]"<<endl;
+
         Vec3i carC = circlesCars[j];
-        circle( img, Point(carC[0], carC[1]), carC[2], Scalar(255,255,255), 3, LINE_AA);
-        circle( img, Point(carC[0], carC[1]), 2, Scalar(255,255,255), 3, LINE_AA);
+        cout<<""<<carC[0]<<" "<<carC[1]<<" "<<carC[2]<<endl;
+        /*cv::Rect rect(carC[0], carC[1], carC[2]*2, carC[2]*2);
+        cv::Mat mic = cv::Mat(thresholdCar, rect);
+        */
+         /*
+        for (int k = 0; k < carC[2]; ++k) {
+            uchar intensity = thresholdCar.at<uchar>(carC[1] + k, carC[0]+k);
+            cout<<"scalar = "<<intensity<<endl;
+            if(intensity.val[0] > 200){
+            //found the car
+
+            }
+        }*/
+
+
+
+        circle( img, Point(carC[0], carC[1]), carC[2], Scalar(0,0,255), 3, LINE_AA);
+        circle( img, Point(carC[0], carC[1]), 2, Scalar(0,255,0), 3, LINE_AA);
+        //imshow("mic", mic);
     }
 
 
@@ -321,8 +368,6 @@ cv::Vec3i getCarPos(cv::Mat img){
     //circle( img, Point(Arena[0], Arena[1]), Arena[2], Scalar(0,0,255), 3, LINE_AA);
     //circle( img, Point(Arena[0], Arena[1]), 2, Scalar(255,0,0), 3, LINE_AA);
     imshow(windowName, img);
-
-    return Vec3i(0,0,0);
 }
 
 
@@ -377,7 +422,7 @@ int main(int argc, char* argv[]) {
     //x and y values for the location of the object
     int x = 0, y = 0;
     //create slider bars for HSV filtering
-    createTrackbars();
+    //createTrackbars();
     //video capture object to acquire webcam feed
     VideoCapture capture;
 
@@ -402,6 +447,11 @@ int main(int argc, char* argv[]) {
     //start an infinite loop where webcam feed is copied to cameraFeed matrix
     //all of our operations will be performed within this loop
 
+    Car c;
+    c.connectToCar();
+    char message[] = {'f','s','l','l','l','l','l','r','s'};
+    char a=0;
+
     while(1){
     capture.read(cameraFeed);
         if(cameraFeed.empty()){
@@ -414,6 +464,12 @@ int main(int argc, char* argv[]) {
     getCarPos(cameraFeed);
 
     waitKey(30);
+        if(a%50 == 0){
+            c.sendCommand(message);
+
+        }
+        a++;
+       // a++;
     }
 
 /*
